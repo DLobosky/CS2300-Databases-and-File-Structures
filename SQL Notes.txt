@@ -1,0 +1,213 @@
+//--------------------------------------------------------- CREATE TABLE ---------------------------------------------------------------------
+CREATE TABLE <Table Name>(
+<Column1 Name> <Data Type> <Constraints> ,
+.
+.
+.
+<ColumnN Name> <Data Type> <Constraints> ,
+<Table Constraint1> ,
+.
+.
+<Table ConstraintN> ,
+PRIMARY KEY(Key Attribute Name>)
+);
+
+
+Types:
+INT or INTEGER
+REAL or FLOAT
+CHAR(n) // where n is max amount of char
+VARCHAR(n) // is like vectors, same as CHAR but only gives memory for what is actually used
+NUMERIC(precision, decimal) // precision = length of number, decimal = how many numbers after decimal point (i.e.: NUMERIC(10,2) = 99,999,999.99)
+DATE
+TIME // must have hours and minutes, but can do UP TO seconds (can also specify am or pm)
+BOOLEAN
+
+Constraints: (force integrity on the db)
+NOT NULL // Primary key automatically implies Not Null
+DEFAULT VALUES
+UNIQUE // null is the only exception, also is implied on a Primary Key
+PRIMARY KEY // can add inline like other constraints, but only if there are NOT other primary keys
+FOREIGN KEY //must make sure you don't make a cycle with your foreign keys
+CHECK CONDITION
+
+
+NOTES:
+For a multivalued attribute like address for students with a home address and a 
+university address, you create a table for the address attribute and have the
+Stu_ssn in the table and the addresses broken up into street, city, state, and zip in it 
+and you would make the Stu_ssn, street, and zip all part of the key
+
+Example:
+
+CREATE TABLE Address(
+Stu_ssn CHAR(9),
+Street VARCHAR(50) NOT NULL,
+City VARCHAR(15),
+State CHAR(15),
+Zip INT,
+PRIMARY KEY(Stu_ssn, Street, Zip)
+);
+
+
+Example:
+
+CREATE TABLE Department(
+Dname VARCHAR(15) NOT NULL,
+Dnumber INT,
+Mgr_ssn CHAR(9),
+PRIMARY KEY(Dnumber)
+);
+
+
+
+Constraint Examlpes:
+Gender CHAR(1) CHECK(Gender = 'M' OR Gender = 'F'),
+Salary NUMBER(10, 2) CHECK(Salary > 40000),
+.
+.
+.
+CHECK((Gender = 'M' OR Gender = 'F') AND Salary > 40000)  // Checks only when adding an entire tuple to a database, not when updating
+
+//-------------------------------------------------------------- ALTER TABLE ---------------------------------------------------------------------
+
+ALTER TABLE Employee ADD COLUMN Website VARCHAR(30);
+
+ALTER TABLE Employee MODIFY Fname VARCHAR(30);
+
+ALTER TABLE Employee DROP COLUMN Website Restrict; // if anything is referencing "website", then it won't drop it
+
+ALTER TABLE Employee DROP COLUMN Website Cascade;// will also drop the column from any table that uses "website" as a reference
+
+ALTER TABLE Employee ADD FOREIGN KEY (Dno) REFERENCES Department(Dnumber);
+
+ALTER TABLE Employee DROP CONSTRAINT  Employee_Super_SSN // if you named your foreign key constraint earlier as "Employee_Super_SSN"
+
+ALTER TABLE EMployee DROP CONSTRAINT FOREIGN KEY ....... 
+
+//---------------------------------------------------------------- SELECT ------------------------------------------------------------------------
+SELECT Attributes
+FROM Relations
+WHERE Constraints/COnditions
+
+SELECT SSN, FName
+FROM Employee
+WHERE Salary > 20000
+
+//------------------------------------------------------------- OTHER STUFF ---------------------------------------------------------------------
+
+SELECT //must be in EVERY SINGLE query
+FROM   //must be in EVERY SINGLE query
+WHERE
+GROUP BY
+HAVING
+ORDER BY
+
+= != < > <= >=
+between (val1 AND val2)
+AND OR
+IS NULL
+IS NOT NULL
+IN
+NOTIN
+LIKE
+DISTINCT // allows to project only one copy in result
+
+//--------------------------------------------------------------- EXAMPLES ------------------------------------------------------------------------
+
+// Who worked on Project 1 for more than 10 hours?
+Works_on(ESSN, Pno, Hours) 
+SELECT ESSN
+FROM Works_on
+WHERE Hours > 10 AND Pno = 1
+
+//------------------------------
+
+// Get the names of all the managers
+Employee(Fname, Lname, SSN, Dno)
+Department(Dnumber Dname, Mgr_ssn)
+
+SELECT E.Fname, E.Lname			// Does the computations first then the projection, so that is why you do E.Fname, E.Lname before declared
+FROM Employee AS E, Department AS D
+WHERE D.Mgr_ssn = E.SSN			// D.Mgr_ssn = E.SSN is what does the EquiJoin
+
+//--------------------------------
+
+// Find the name of sailors that reserved boat 103
+Sailor(Sid, Sname, Rating, Age)
+Reserve(Sid, Bid, day)
+
+SELECT Sname
+FROM Sailor AS S, Reserve AS R
+WHERE R.Bid = 103, S.Sid = R.Sid;     // S.Sid = R.Sid is what does the EquiJoin
+
+//----------------------------------
+
+
+SELECT Lname
+FROM Employee
+WHERE Lname  LIKE 'M%e_'	 // % -> 0 or more characters (so in this example any number of characters between M and e)
+				 // _ -> single character ( so in this example there is only a single character after the e)
+				 // M**********e*
+
+SELECT 100000-Salary
+FROM Employee         // returns only Salaries (i.e: 80000 would return 20000)
+
+SELECT Lname, 100000-Salary
+FROM Employee         // returns Salaries and Lnames
+
+SELECT *, 100000-Salary
+FROM Employee         // returns all info for all tuples
+
+SELECT SSN AS ESSN
+FROM Employee as E
+
+Employee(SSN, Sex, Phone)
+INSERT INTO Employee VALUES (123456789, M, 5734349401)
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Sailors(SID, Sname, rating)
+
+SELECT Sname
+From Sailors
+Where SID > 50
+ORDER BY rating ASC, SID DESC // ASC or DESC for ascending or desceding order
+
+/* 	90 Bob 7                 // This is the outcome of the previous example
+	94 Alice 9
+	97 Jack 7
+	    vvv
+	97 Jack 7
+	90 Bob 7
+	94 Alice 9
+*/
+
+SELECT S.Sname
+FROM Sailors AS s, Boats AS B, Reserve AS R
+WHERE S.SID = R.SID AND
+               R.BID = B.BID AND
+               (B.Color = 'Red' OR B.Color = 'Green')
+
+
+SELECT COUNT([Distinct] S.rating) 	// example from above would be 2
+SELECT SUM([S.rating) 		// example from above would be 23
+SELECT SUM([Distinct] S.rating)	// example from above would be 16
+SELECT AVG([Distinct] S.rating) 	// example from above would be 8
+
+
+SELECT COUNT(*)
+FROM Sailors
+
+is equivalent to  	// this is because SID is the primary key
+
+SELECT COUNT(SID)
+FROM Sailors 
+
+
+
+//---------------------------------------------------------------SCRIPTING SQL ---------------------------------------------------------------------
+
+XAMPP
+
+
+
